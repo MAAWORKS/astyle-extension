@@ -30,29 +30,34 @@
             // 
             // textBoxCommandLine
             // 
-            this.textBoxCommandLine.Location = new System.Drawing.Point(12, 4);
+            this.textBoxCommandLine.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBoxCommandLine.Location = new System.Drawing.Point(12, 10);
             this.textBoxCommandLine.Multiline = true;
             this.textBoxCommandLine.Name = "textBoxCommandLine";
             this.textBoxCommandLine.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxCommandLine.Size = new System.Drawing.Size(387, 107);
+            this.textBoxCommandLine.Size = new System.Drawing.Size(387, 307);
             this.textBoxCommandLine.TabIndex = 0;
             // 
             // buttonSave
             // 
+            this.buttonSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonSave.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonSave.Location = new System.Drawing.Point(324, 117);
+            this.buttonSave.Location = new System.Drawing.Point(244, 323);
             this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(75, 23);
+            this.buttonSave.Size = new System.Drawing.Size(75, 32);
             this.buttonSave.TabIndex = 1;
             this.buttonSave.Text = "Save";
             this.buttonSave.UseVisualStyleBackColor = true;
             // 
             // buttonCancel
             // 
+            this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(243, 117);
+            this.buttonCancel.Location = new System.Drawing.Point(325, 323);
             this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
+            this.buttonCancel.Size = new System.Drawing.Size(75, 32);
             this.buttonCancel.TabIndex = 2;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
@@ -60,10 +65,11 @@
             // AStyleEditForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
-            this.ClientSize = new System.Drawing.Size(411, 149);
+            this.ClientSize = new System.Drawing.Size(411, 361);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.textBoxCommandLine);
+            this.Font = new System.Drawing.Font("Meiryo UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "AStyleEditForm";
             this.ShowInTaskbar = false;
