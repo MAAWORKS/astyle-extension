@@ -1,3 +1,23 @@
+-------- MAAWORKS 追記：ここから --------
+
+astyle-extension for Visual Studio 2022
+=======================================
+
+* astyle-extension を Visual Studio 2022 で使用したかったので、Version 3.1 が動作するように変更しました。動作するようにしただけのやっつけ仕事ですが...
+* Visual Studio 2019 用とは互換性がなくなりました。なので、今のところは Visual Studio 2022 専用です。
+* 対象の .NET Framework は 4.8 に変更。
+* 日本語環境だとフォームのレイアウトがちょっとおかしかったので、Meiryo UI 9pt で調整しました。
+* AStyle.dll は Visual Studio 2022 によるリビルド品です。
+
+対応する Visual Studio:
+=======================
+
+* Visual Studio 2022
+
+-------- ここまで --------
+
+
+
 astyle-extension
 ================
 
