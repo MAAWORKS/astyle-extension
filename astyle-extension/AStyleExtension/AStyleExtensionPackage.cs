@@ -9,215 +9,263 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.AsyncPackageHelpers;
 using Microsoft.VisualStudio.Shell;
 
-namespace AStyleExtension {
-	[ProvideMenuResource("Menus.ctmenu", 1)]
-	[InstalledProductRegistration("#110", "#112", "3.1", IconResourceID = 400)]
-	[Microsoft.VisualStudio.AsyncPackageHelpers.AsyncPackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-	[Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
-	[Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
-	[Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasSingleProject_string, PackageAutoLoadFlags.BackgroundLoad)]
-	[Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasMultipleProjects_string, PackageAutoLoadFlags.BackgroundLoad)]
+namespace AStyleExtension
+{
+    [ProvideMenuResource("Menus.ctmenu", 1)]
+    [InstalledProductRegistration("#110", "#112", "3.1", IconResourceID = 400)]
+    [AsyncPackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+    [Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, Microsoft.VisualStudio.AsyncPackageHelpers.PackageAutoLoadFlags.BackgroundLoad)]
+    [Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, Microsoft.VisualStudio.AsyncPackageHelpers.PackageAutoLoadFlags.BackgroundLoad)]
+    [Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasSingleProject_string, Microsoft.VisualStudio.AsyncPackageHelpers.PackageAutoLoadFlags.BackgroundLoad)]
+    [Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasMultipleProjects_string, Microsoft.VisualStudio.AsyncPackageHelpers.PackageAutoLoadFlags.BackgroundLoad)]
 
-	[Guid(GuidList.GuidPkgString)]
-	[ProvideOptionPage(typeof(AStyleGeneralOptionsPage), "AStyle Formatter", "General", 1000, 1001, true)]
-	public sealed class AStyleExtensionPackage : Package {
-		private DTE _dte;
-		private OleMenuCommand _formatSelMenuCommand;
-		private OleMenuCommand _formatDocMenuCommand;
-		private bool _isCSharpEnabled;
-		private AStyleGeneralOptionsPage _dialog;
-		private DocumentEventListener _documentEventListener;
+    [Guid(GuidList.GuidPkgString)]
+    [ProvideOptionPage(typeof(AStyleGeneralOptionsPage), "AStyle Formatter", "General", 1000, 1001, true)]
+    public sealed class AStyleExtensionPackage : Package
+    {
+        private DTE _dte;
+        private OleMenuCommand _formatSelMenuCommand;
+        private OleMenuCommand _formatDocMenuCommand;
+        private bool _isCSharpEnabled;
+        private AStyleGeneralOptionsPage _dialog;
+        private DocumentEventListener _documentEventListener;
 
-		protected override void Initialize() {
-			base.Initialize();
+        protected override void Initialize()
+        {
+            base.Initialize();
 
-			var mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-			if (null != mcs) {
-				var id = new CommandID(GuidList.GuidCmdSet, (int)PkgCmdIDList.FormatDocumentCommand);
-				_formatDocMenuCommand = new OleMenuCommand(FormatDocumentCallback, id);
-				mcs.AddCommand(_formatDocMenuCommand);
-				_formatDocMenuCommand.BeforeQueryStatus += OnBeforeQueryStatus;
+            if (this.GetService(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
+            {
+                var id = new CommandID(GuidList.GuidCmdSet, (int)PkgCmdIDList.FormatDocumentCommand);
+                _formatDocMenuCommand = new OleMenuCommand(this.FormatDocumentCallback, id);
+                mcs.AddCommand(_formatDocMenuCommand);
+                _formatDocMenuCommand.BeforeQueryStatus += this.OnBeforeQueryStatus;
 
-				id = new CommandID(GuidList.GuidCmdSet, (int)PkgCmdIDList.FormatSelectionCommand);
-				_formatSelMenuCommand = new OleMenuCommand(FormatSelectionCallback, id);
-				mcs.AddCommand(_formatSelMenuCommand);
-				_formatSelMenuCommand.BeforeQueryStatus += OnBeforeQueryStatus;
-			}
+                id = new CommandID(GuidList.GuidCmdSet, (int)PkgCmdIDList.FormatSelectionCommand);
+                _formatSelMenuCommand = new OleMenuCommand(this.FormatSelectionCallback, id);
+                mcs.AddCommand(_formatSelMenuCommand);
+                _formatSelMenuCommand.BeforeQueryStatus += this.OnBeforeQueryStatus;
+            }
 
-			_dte = (DTE)GetService(typeof(DTE));
+            _dte = (DTE)this.GetService(typeof(DTE));
 
-			_documentEventListener = new DocumentEventListener(this);
-			_documentEventListener.BeforeSave += OnBeforeDocumentSave;
+            _documentEventListener = new DocumentEventListener(this);
+            _documentEventListener.BeforeSave += this.OnBeforeDocumentSave;
 
-			if (_dte.RegistryRoot.Contains("VisualStudio")) {
-				_isCSharpEnabled = true;
-			}
+            if (_dte.RegistryRoot.Contains("VisualStudio"))
+            {
+                _isCSharpEnabled = true;
+            }
 
-			_dialog = (AStyleGeneralOptionsPage)GetDialogPage(typeof(AStyleGeneralOptionsPage));
-			_dialog.IsCSarpEnabled = _isCSharpEnabled;
-		}
+            _dialog = (AStyleGeneralOptionsPage)this.GetDialogPage(typeof(AStyleGeneralOptionsPage));
+            _dialog.IsCSarpEnabled = _isCSharpEnabled;
+        }
 
-		private TextDocument GetTextDocument(Document doc) {
-			if (doc == null || doc.ReadOnly) {
-				return null;
-			}
+        private TextDocument GetTextDocument(Document doc)
+        {
+            if (doc == null || doc.ReadOnly)
+            {
+                return null;
+            }
 
-			var textDoc = doc.Object("TextDocument") as TextDocument;
+            var textDoc = doc.Object("TextDocument") as TextDocument;
 
-			return textDoc;
-		}
+            return textDoc;
+        }
 
-		private Language GetLanguage(Document doc) {
-			var language = Language.NA;
+        private Language GetLanguage(Document doc)
+        {
+            var language = Language.NA;
+            var lang = doc.Language.ToLower();
 
-			string lang = doc.Language.ToLower();
-			if (lang == "gcc" || lang == "avrgcc" || lang == "c/c++") {
-				language = Language.Cpp;
-			} else if (lang == "csharp" && _isCSharpEnabled) {
-				language = Language.CSharp;
-			}
+            if (lang == "gcc" || lang == "avrgcc" || lang == "c/c++")
+            {
+                language = Language.Cpp;
+            }
+            else if (lang == "csharp" && _isCSharpEnabled)
+            {
+                language = Language.CSharp;
+            }
 
-			return language;
-		}
+            return language;
+        }
 
-		private int OnBeforeDocumentSave(uint docCookie) {
-			if (!_dialog.CppFormatOnSave && !_dialog.CsFormatOnSave) {
-				return VSConstants.S_OK;
-			}
+        private int OnBeforeDocumentSave(uint docCookie)
+        {
+            if (!_dialog.CppFormatOnSave && !_dialog.CsFormatOnSave)
+            {
+                return VSConstants.S_OK;
+            }
 
-			var doc = _dte.Documents.OfType<Document>().FirstOrDefault(x => x.FullName == _documentEventListener.GetDocumentName(docCookie));
-			var language = GetLanguage(doc);
+            var doc = _dte.Documents.OfType<Document>().FirstOrDefault(x => x.FullName == _documentEventListener.GetDocumentName(docCookie));
+            var language = this.GetLanguage(doc);
 
-			if (language == Language.CSharp && _dialog.CsFormatOnSave) {
-				FormatDocument(GetTextDocument(doc), Language.CSharp);
-			} else if (language == Language.Cpp && _dialog.CppFormatOnSave) {
-				FormatDocument(GetTextDocument(doc), Language.Cpp);
-			}
+            if (language == Language.CSharp && _dialog.CsFormatOnSave)
+            {
+                this.FormatDocument(this.GetTextDocument(doc), Language.CSharp);
+            }
+            else if (language == Language.Cpp && _dialog.CppFormatOnSave)
+            {
+                this.FormatDocument(this.GetTextDocument(doc), Language.Cpp);
+            }
 
-			return VSConstants.S_OK;
-		}
+            return VSConstants.S_OK;
+        }
 
-		private void OnBeforeQueryStatus(object sender, EventArgs e) {
-			var cmd = (OleMenuCommand)sender;
-			var language = GetLanguage(_dte.ActiveDocument);
+        private void OnBeforeQueryStatus(object sender, EventArgs e)
+        {
+            var cmd = (OleMenuCommand)sender;
+            var language = this.GetLanguage(_dte.ActiveDocument);
 
-			if (language != Language.CSharp && language != Language.Cpp) {
-				cmd.Visible = false;
-			} else {
-				cmd.Visible = true;
-			}
+            if (language != Language.CSharp && language != Language.Cpp)
+            {
+                cmd.Visible = false;
+            }
+            else
+            {
+                cmd.Visible = true;
+            }
 
-			cmd.Enabled = cmd.Visible;
-		}
+            cmd.Enabled = cmd.Visible;
+        }
 
-		private void FormatDocumentCallback(object sender, EventArgs e) {
-			var language = GetLanguage(_dte.ActiveDocument);
-			var textDoc = GetTextDocument(_dte.ActiveDocument);
+        private void FormatDocumentCallback(object sender, EventArgs e)
+        {
+            var language = this.GetLanguage(_dte.ActiveDocument);
+            var textDoc = this.GetTextDocument(_dte.ActiveDocument);
 
-			FormatDocument(textDoc, language);
-		}
+            this.FormatDocument(textDoc, language);
+        }
 
-		private void FormatDocument(TextDocument textDoc, Language language) {
-			if (textDoc == null || language == Language.NA) {
-				return;
-			}
+        private void FormatDocument(TextDocument textDoc, Language language)
+        {
+            if (textDoc == null || language == Language.NA)
+            {
+                return;
+            }
 
-			EditPoint sp = textDoc.StartPoint.CreateEditPoint();
-			EditPoint ep = textDoc.EndPoint.CreateEditPoint();
-			string text = sp.GetText(ep);
+            var sp = textDoc.StartPoint.CreateEditPoint();
+            var ep = textDoc.EndPoint.CreateEditPoint();
+            var text = sp.GetText(ep);
 
-			if (String.IsNullOrEmpty(text)) {
-				return;
-			}
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
 
-			string formattedText = Format(text, language);
-			if (!String.IsNullOrEmpty(formattedText)) {
-				sp.ReplaceText(ep, formattedText, (int)vsEPReplaceTextOptions.vsEPReplaceTextKeepMarkers);
-			}
-		}
+            var formattedText = this.Format(text, language);
 
-		private void FormatSelectionCallback(object sender, EventArgs e) {
-			var language = GetLanguage(_dte.ActiveDocument);
-			var textDoc = GetTextDocument(_dte.ActiveDocument);
+            if (!string.IsNullOrEmpty(formattedText))
+            {
+                sp.ReplaceText(ep, formattedText, (int)vsEPReplaceTextOptions.vsEPReplaceTextKeepMarkers);
+            }
+        }
 
-			FormatSelection(textDoc, language);
-		}
+        private void FormatSelectionCallback(object sender, EventArgs e)
+        {
+            var language = this.GetLanguage(_dte.ActiveDocument);
+            var textDoc = this.GetTextDocument(_dte.ActiveDocument);
 
-		private void FormatSelection(TextDocument textDoc, Language language) {
-			if (textDoc == null || language == Language.NA) {
-				return;
-			}
+            this.FormatSelection(textDoc, language);
+        }
 
-			string newLineReplacement = "";
+        private void FormatSelection(TextDocument textDoc, Language language)
+        {
+            if (textDoc == null || language == Language.NA)
+            {
+                return;
+            }
 
-			if (textDoc.Selection.IsEmpty) {
-				return;
-			}
+            var newLineReplacement = "";
 
-			EditPoint sp = textDoc.Selection.TopPoint.CreateEditPoint();
-			EditPoint ep = textDoc.Selection.BottomPoint.CreateEditPoint();
+            if (textDoc.Selection.IsEmpty)
+            {
+                return;
+            }
 
-			string text = textDoc.Selection.Text;
+            var sp = textDoc.Selection.TopPoint.CreateEditPoint();
+            var ep = textDoc.Selection.BottomPoint.CreateEditPoint();
 
-			int pos = 0;
-			foreach (var c in text) {
-				pos++;
-				if (c != ' ' && c != '\t') {
-					break;
-				}
-			}
+            var text = textDoc.Selection.Text;
 
-			if (pos > 0) {
-				newLineReplacement = text.Substring(0, pos - 1);
-			}
+            var pos = 0;
 
-			string formattedText = Format(text, language);
+            foreach (var c in text)
+            {
+                pos++;
 
-			if (!String.IsNullOrEmpty(newLineReplacement)) {
-				string[] lines = Regex.Split(formattedText, "\r\n|\r|\n");
+                if (c != ' ' && c != '\t')
+                {
+                    break;
+                }
+            }
 
-				for (int x = 0; x < lines.Length; x++) {
-					if (!string.IsNullOrEmpty(lines[x])) {
-						lines[x] = newLineReplacement + lines[x];
-					}
-				}
+            if (pos > 0)
+            {
+                newLineReplacement = text.Substring(0, pos - 1);
+            }
 
-				formattedText = String.Join(Environment.NewLine, lines);
-			}
+            var formattedText = this.Format(text, language);
 
-			if (!String.IsNullOrEmpty(formattedText)) {
-				sp.ReplaceText(ep, formattedText, (int)vsEPReplaceTextOptions.vsEPReplaceTextKeepMarkers);
-			}
-		}
+            if (!string.IsNullOrEmpty(newLineReplacement))
+            {
+                var lines = Regex.Split(formattedText, "\r\n|\r|\n");
 
-		private string Format(string text, Language language) {
-			string options;
+                for (var x = 0; x < lines.Length; x++)
+                {
+                    if (!string.IsNullOrEmpty(lines[x]))
+                    {
+                        lines[x] = newLineReplacement + lines[x];
+                    }
+                }
 
-			if (_dialog == null) {
-				MessageBox.Show("Unable to read AStyle Formatter settings.", "AStyle Formatter Error");
-				return null;
-			}
+                formattedText = string.Join(Environment.NewLine, lines);
+            }
 
-			if (language == Language.CSharp) {
-				options = _dialog.CsOptions;
-			} else if (language == Language.Cpp) {
-				options = _dialog.CppOptions;
-			} else {
-				return null;
-			}
+            if (!string.IsNullOrEmpty(formattedText))
+            {
+                sp.ReplaceText(ep, formattedText, (int)vsEPReplaceTextOptions.vsEPReplaceTextKeepMarkers);
+            }
+        }
 
-			if (String.IsNullOrEmpty(options)) {
-				return null;
-			}
+        private string Format(string text, Language language)
+        {
+            string options;
 
-			var aStyle = new AStyleInterface();
-			aStyle.ErrorRaised += OnAStyleErrorRaised;
+            if (_dialog == null)
+            {
+                MessageBox.Show("Unable to read AStyle Formatter settings.", "AStyle Formatter Error");
+                return null;
+            }
 
-			return aStyle.FormatSource(text, options);
-		}
+            switch (language)
+            {
+                case Language.CSharp:
+                    options = _dialog.CsOptions;
+                    break;
 
-		private void OnAStyleErrorRaised(object source, AStyleErrorArgs args) {
-			MessageBox.Show(args.Message, "AStyle Formatter Error");
-		}
-	}
+                case Language.Cpp:
+                    options = _dialog.CppOptions;
+                    break;
+
+                default:
+                    return null;
+            }
+
+            if (string.IsNullOrEmpty(options))
+            {
+                return null;
+            }
+
+            var aStyle = new AStyleInterface();
+            aStyle.ErrorRaised += this.OnAStyleErrorRaised;
+
+            return aStyle.FormatSource(text, options);
+        }
+
+        private void OnAStyleErrorRaised(object source, AStyleErrorArgs args)
+        {
+            MessageBox.Show(args.Message, "AStyle Formatter Error");
+        }
+    }
 }
