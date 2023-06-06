@@ -5,3 +5,10 @@
 /astyle-extension/AStyleExtension/*.user
 packages
 .vs
+/astyle-extension/AStyleExtension/AStyle/_AStyle.dll
+/astyle-extension/AStyleExtension/AStyle/_AStyle.exp
+/astyle-extension/AStyleExtension/AStyle/_AStyle.lib
+/astyle-extension/AStyleExtension/AStyle/_AStyle31.dll
+/astyle-extension/AStyleExtension/AStyle/_AStyle31.pdb
+/astyle-extension/AStyleExtension/AStyle/_AStyle33d.lib
+/AStyleExtension-2022-6-3.cfg
