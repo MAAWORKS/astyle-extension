@@ -3,6 +3,12 @@
 astyle-extension for Visual Studio 2022
 =======================================
 
+[2023.6.6]
+* AStyle.dll を Version 3.3 に更新しました（Visual Studio 2022 17.6.2 にてビルド）。
+* フォームを高 DPI 環境用に調整しました。
+* Visual Studio 2022 17.6.2。
+
+[2022.3.4]
 * astyle-extension を Visual Studio 2022 で使用したかったので、Version 3.1 が動作するように変更しました。</br>
   動作するようにしただけのやっつけ仕事ですが...
 * Visual Studio 2019 用とは互換性がなくなりました。なので、今のところは Visual Studio 2022 専用です。
