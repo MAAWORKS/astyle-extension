@@ -51,9 +51,20 @@ namespace AStyleExtension
                     Marshal.FreeHGlobal(pText);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                this.OnAStyleError(this, new AStyleErrorArgs(e.ToString()));
+                string msg = $"an error has occurred. : Source = {ex.Source}\n" +
+                             $"-> [Message] {ex.Message}\n" +
+                             $"-> [TargetSite] {ex.TargetSite.ToString()}\n" +
+                             string.Format("**** StackTrace ****\n{0}", ex.StackTrace
+                                           .Replace("   場所", "\n場所")
+                                           .Replace("  場所", "\n場所")
+                                           .Replace(" 場所", "\n場所")
+                                           .Replace("   at ", "\nat ")
+                                           .Replace("  at ", "\nat ")
+                                           .Replace(" at ", "\nat ")
+                                           .Replace("\n\n", "\n"));
+                this.OnAStyleError(this, new AStyleErrorArgs(msg));
             }
 
             return sTextOut;

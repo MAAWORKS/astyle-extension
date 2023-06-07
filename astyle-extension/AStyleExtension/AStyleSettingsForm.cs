@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define JAJP
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -38,6 +40,7 @@ namespace AStyleExtension
             { "--style=1tbs", "1TBS" },
             { "--style=google", "Google" },
             { "--style=mozilla", "Mozilla" },
+            { "--style=webkit", "WebKit" },
             { "--style=pico", "Pico" },
             { "--style=lisp", "Lisp" }
         };
@@ -106,6 +109,7 @@ namespace AStyleExtension
                 { "--attach-return-type-decl", checkBoxAttachReturnTypeDecl }
             };
 
+#if JAJP
             toolTip.SetToolTip(checkBoxAttachNamespaces, "Attach brackets to a namespace statement.");
             toolTip.SetToolTip(checkBoxAttachClasses, "Attach brackets to a class statement.");
             toolTip.SetToolTip(checkBoxAttachInlines, "Attach brackets to class and struct inline function definition.");
@@ -158,6 +162,60 @@ namespace AStyleExtension
             toolTip.SetToolTip(checkBoxBreakReturnTypeDecl, "Break the return type from the function name for function declarations or signatures.");
             toolTip.SetToolTip(checkBoxAttachReturnType, "Attach the return type to the function name for function definitions.");
             toolTip.SetToolTip(checkBoxAttachReturnTypeDecl, "Attach the return type to the function name for function declarations or signatures.");
+#else
+            toolTip.SetToolTip(checkBoxAttachNamespaces, "Attach brackets to a namespace statement.");
+            toolTip.SetToolTip(checkBoxAttachClasses, "Attach brackets to a class statement.");
+            toolTip.SetToolTip(checkBoxAttachInlines, "Attach brackets to class and struct inline function definition.");
+            toolTip.SetToolTip(checkBoxAttachExternC, "Attach brackets to a bracketed extern \"C\" statement.");
+            toolTip.SetToolTip(checkBoxAttachClosingWhile, "Attach the closing 'while' of a 'do-while' statement to the closing brace.");
+            toolTip.SetToolTip(checkBoxIndent, "Indent using spaces or tab characters.");
+            toolTip.SetToolTip(checkBoxIndentForceTabX, "Set tab length to a length that is different than the indent length.");
+            toolTip.SetToolTip(checkBoxIndentClasses, "Indent 'class' and 'struct' blocks.");
+            toolTip.SetToolTip(checkBoxIndentModifiers, "Indent 'class' and 'struct' access modifiers one half indent.");
+            toolTip.SetToolTip(checkBoxIndentSwitches, "Indent 'switch' blocks.");
+            toolTip.SetToolTip(checkBoxIndentCases, "Indent 'case X:' blocks from the 'case X:' headers.");
+            toolTip.SetToolTip(checkBoxIndentNamesp, "Add extra indentation to namespace blocks.");
+            toolTip.SetToolTip(checkBoxIndentAfterParens, "Indent, instead of align, continuation lines following lines that contain an opening paren '(' or an assignment '='.");
+            toolTip.SetToolTip(checkBoxIndentLabels, "Add extra indentation to labels so they appear 1 indent less than the current indentation.");
+            toolTip.SetToolTip(checkBoxIndentContinuation, "Set the continuation indent for a line that ends with an opening paren '(' or an assignment '='.");
+            toolTip.SetToolTip(checkBoxIndentPreprocBlock, "Indent preprocessor blocks at bracket level zero, and immediately within a namespace.");
+            toolTip.SetToolTip(checkBoxIndentPreprocDefine, "Indent multi-line preprocessor definitions ending with a backslash.");
+            toolTip.SetToolTip(checkBoxIndentPreprocCond, "Indent preprocessor conditional statements to the same level as the source code.");
+            toolTip.SetToolTip(checkBoxIndentCol1Com, "Indent C++ comments beginning in column one.");
+            toolTip.SetToolTip(checkBoxMinCondIndent, "Set the minimal indent that is added when a header is built of multiple lines.");
+            toolTip.SetToolTip(checkBoxMaxContIndent, "Set the maximum number of spaces to indent a continuation line.");
+            toolTip.SetToolTip(checkBoxBreakBlocks, "Pad empty lines around header blocks (e.g. 'if', 'for', 'while').");
+            toolTip.SetToolTip(checkBoxBreakBlocksAll, "Pad empty lines around header blocks (e.g. 'if', 'for', 'while'). Treat closing header blocks (e.g. 'else', 'catch') as stand-alone blocks.");
+            toolTip.SetToolTip(checkBoxPadOper, "Insert space padding around operators.");
+            toolTip.SetToolTip(checkBoxPadComma, "Insert space padding after commas.");
+            toolTip.SetToolTip(checkBoxPadParen, "Insert space padding around parenthesis on both the outside and the inside.");
+            toolTip.SetToolTip(checkBoxPadParenOut, "Insert space padding around parenthesis on the outside only.");
+            toolTip.SetToolTip(checkBoxPadFirstParenOut, "Insert space padding around the first parenthesis in a series on the outside only.");
+            toolTip.SetToolTip(checkBoxPadParenIn, "Insert space padding around parenthesis on the inside only.");
+            toolTip.SetToolTip(checkBoxPadHeader, "Insert space padding after paren headers only (e.g. 'if', 'for', 'while').");
+            toolTip.SetToolTip(checkBoxUnpadParen, "Remove extra space padding around parenthesis on the inside and outside.");
+            toolTip.SetToolTip(checkBoxDelEmptyLines, "Delete empty lines within a function or method. Empty lines outside of functions or methods are not deleted.");
+            toolTip.SetToolTip(checkBoxFillEmptyLines, "Fill empty lines with the white space of the previous line.");
+            toolTip.SetToolTip(checkBoxCloseTemplates, "Close whitespace in the angle brackets of template definitions.");
+            toolTip.SetToolTip(checkBoxBreakClosingBraces, "Break closing headers (e.g. 'else', 'catch') from their immediately preceding closing brackets.");
+            toolTip.SetToolTip(checkBoxBreakElseIfs, "Break 'else if' header combinations into separate lines.");
+            toolTip.SetToolTip(checkBoxBreakOneLineHeaders, "Break one line headers (e.g. 'if', 'while', 'else', ...) from a statement residing on the same line.");
+            toolTip.SetToolTip(checkBoxAddBraces, "Add braces to unbraced one line conditional statements (e.g. 'if', 'for', 'while').");
+            toolTip.SetToolTip(checkBoxRemoveBraces, "Remove braces from one line conditional statements (e.g. 'if', 'for', 'while').");
+            toolTip.SetToolTip(checkBoxAddOneLineBraces, "Add one line braces to unbraced one line conditional statements  (e.g. 'if', 'for', 'while').");
+            toolTip.SetToolTip(checkBoxKeepOneLineBlocks, "Don't break blocks residing completely on one line.");
+            toolTip.SetToolTip(checkBoxKeepOneLineStat, "Don't break complex statements and multiple statements residing on a single line.");
+            toolTip.SetToolTip(checkBoxConvertTabs, "Convert tabs into spaces in the non-indentation part of the line.");
+            toolTip.SetToolTip(checkBoxAlignPointer, "Attach a pointer or reference operator (* or &) to either the variable type or variable name, or in between.");
+            toolTip.SetToolTip(checkBoxAlignReference, "Attach a reference operator (&) to either the variable type or variable name, or in between.");
+            toolTip.SetToolTip(checkBoxMaxCodeLength, "Break a line if the code exceeds maximum characters.");
+            toolTip.SetToolTip(checkBoxBreakAfterLogical, "Break a line at a semicolon if the line goes over the maximum length. Used with max-code-length.");
+            toolTip.SetToolTip(checkBoxRemoveCommentPrefix, "Remove the preceding '*' in a multi-line comment that begins a line.");
+            toolTip.SetToolTip(checkBoxBreakReturnType, "Break the return type from the function name for function definitions.");
+            toolTip.SetToolTip(checkBoxBreakReturnTypeDecl, "Break the return type from the function name for function declarations or signatures.");
+            toolTip.SetToolTip(checkBoxAttachReturnType, "Attach the return type to the function name for function definitions.");
+            toolTip.SetToolTip(checkBoxAttachReturnTypeDecl, "Attach the return type to the function name for function declarations or signatures.");
+#endif
 
             comboBoxStyle.SelectedIndex = 0;
 

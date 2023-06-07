@@ -155,12 +155,14 @@
             "Whitesmith",
             "VTK",
             "Banner",
+            "Ratliff",
             "GNU",
             "Linux",
             "Horstmann",
             "1TBS",
             "Google",
             "Mozilla",
+            "WebKit",
             "Pico",
             "Lisp"});
             this.comboBoxStyle.Location = new System.Drawing.Point(10, 31);

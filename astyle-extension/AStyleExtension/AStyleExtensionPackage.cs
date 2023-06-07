@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.Shell;
 namespace AStyleExtension
 {
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [InstalledProductRegistration("#110", "#112", "3.1", IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", "3.2", IconResourceID = 400)]
     [AsyncPackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, Microsoft.VisualStudio.AsyncPackageHelpers.PackageAutoLoadFlags.BackgroundLoad)]
     [Microsoft.VisualStudio.AsyncPackageHelpers.ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, Microsoft.VisualStudio.AsyncPackageHelpers.PackageAutoLoadFlags.BackgroundLoad)]
@@ -33,6 +33,7 @@ namespace AStyleExtension
         protected override void Initialize()
         {
             base.Initialize();
+            ThreadHelper.ThrowIfNotOnUIThread();
 
             if (this.GetService(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
             {
@@ -47,12 +48,12 @@ namespace AStyleExtension
                 _formatSelMenuCommand.BeforeQueryStatus += this.OnBeforeQueryStatus;
             }
 
-            _dte = (DTE)this.GetService(typeof(DTE));
+            _dte = this.GetService(typeof(DTE)) as DTE;
 
             _documentEventListener = new DocumentEventListener(this);
             _documentEventListener.BeforeSave += this.OnBeforeDocumentSave;
 
-            if (_dte.RegistryRoot.Contains("VisualStudio"))
+            if (_dte != null && _dte.RegistryRoot.Contains("VisualStudio"))
             {
                 _isCSharpEnabled = true;
             }
@@ -63,7 +64,14 @@ namespace AStyleExtension
 
         private TextDocument GetTextDocument(Document doc)
         {
-            if (doc == null || doc.ReadOnly)
+            if (doc == null)
+            {
+                return null;
+            }
+
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (doc.ReadOnly)
             {
                 return null;
             }
@@ -75,6 +83,7 @@ namespace AStyleExtension
 
         private Language GetLanguage(Document doc)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             var language = Language.NA;
             var lang = doc.Language.ToLower();
 
@@ -97,7 +106,15 @@ namespace AStyleExtension
                 return VSConstants.S_OK;
             }
 
-            var doc = _dte.Documents.OfType<Document>().FirstOrDefault(x => x.FullName == _documentEventListener.GetDocumentName(docCookie));
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var doc = _dte.Documents.OfType<Document>().FirstOrDefault
+                      (
+                          x =>
+                          {
+                              ThreadHelper.ThrowIfNotOnUIThread();
+                              return x.FullName == _documentEventListener.GetDocumentName(docCookie);
+                          }
+                      );
             var language = this.GetLanguage(doc);
 
             if (language == Language.CSharp && _dialog.CsFormatOnSave)
@@ -114,6 +131,7 @@ namespace AStyleExtension
 
         private void OnBeforeQueryStatus(object sender, EventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             var cmd = (OleMenuCommand)sender;
             var language = this.GetLanguage(_dte.ActiveDocument);
 
@@ -131,6 +149,7 @@ namespace AStyleExtension
 
         private void FormatDocumentCallback(object sender, EventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             var language = this.GetLanguage(_dte.ActiveDocument);
             var textDoc = this.GetTextDocument(_dte.ActiveDocument);
 
@@ -144,6 +163,7 @@ namespace AStyleExtension
                 return;
             }
 
+            ThreadHelper.ThrowIfNotOnUIThread();
             var sp = textDoc.StartPoint.CreateEditPoint();
             var ep = textDoc.EndPoint.CreateEditPoint();
             var text = sp.GetText(ep);
@@ -163,6 +183,7 @@ namespace AStyleExtension
 
         private void FormatSelectionCallback(object sender, EventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             var language = this.GetLanguage(_dte.ActiveDocument);
             var textDoc = this.GetTextDocument(_dte.ActiveDocument);
 
@@ -177,6 +198,7 @@ namespace AStyleExtension
             }
 
             var newLineReplacement = "";
+            ThreadHelper.ThrowIfNotOnUIThread();
 
             if (textDoc.Selection.IsEmpty)
             {
